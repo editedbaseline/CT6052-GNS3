@@ -7,6 +7,7 @@
 # Implementation: TBC
 # Version history:
 #  - 0.1 - first imprint
+#  - 0.2 - commented out debug print statements
 # ************************
 
 '''
@@ -55,7 +56,7 @@ def validate_ip_address(prefix):
         if ipaddress.IPv4Address(prefix).version == 4:
             return True
     except ipaddress.AddressValueError:
-        print("This does not appear to be a valid IP address")
+        # print("This does not appear to be a valid IP address")
         sys.exit("ip_validation_error")
 
 
@@ -63,7 +64,7 @@ def prefix_to_first_host(prefix, mask):
     try:
         prefix_length = ipaddress.IPv4Network(prefix + '/' + mask).prefixlen
     except ValueError:
-        print("Check the IP address - it appears to be a host address, not the expected network address")
+        # print("Check the IP address - it appears to be a host address, not the expected network address")
         sys.exit("prefix_has_host_bit_set")
     prefix_cidr = prefix + '/' + str(prefix_length)
     i = ipaddress.ip_network(prefix_cidr)
@@ -74,21 +75,21 @@ def prefix_to_first_host(prefix, mask):
 def basic_connection_test():
     # Not actively used, here for ease if debugging needed
     output = net_connect.send_command('show run')
-    print(output)
+    # print(output)
 
 
 def create_loopback(loopback_id, prefix_fuh, mask):
     config_commands = [ 'interface loopback ' + loopback_id,
                         'ip address ' + prefix_fuh + ' ' + mask ]
     output = net_connect.send_config_set(config_commands)
-    print(output)
+    # print(output)
 
 
 def advertise_route(prefix, mask):
     config_commands = [ 'router bgp 65535',
                         'network ' + prefix + ' mask ' + mask ]
     output = net_connect.send_config_set(config_commands)
-    print(output)
+    # print(output)
 
 
 def save_disconnect():
@@ -96,7 +97,7 @@ def save_disconnect():
     try:
         net_connect.send_command("copy r s")
     except:
-        print("Unknown error when attempting to save configuration to NVRAM")
+        # print("Unknown error when attempting to save configuration to NVRAM")
         net_connect.disconnect()
         sys.exit("save_config_error")
     net_connect.disconnect()
@@ -109,10 +110,10 @@ if __name__ == "__main__":
     # Check loopback_id value is valid
     try:
         if not 1 <= int(get_arguments.loopback_id) <= 2147483647:
-            print("Loopback_id should be an int between 1 and 2,147,483,647")
+            # print("Loopback_id should be an int between 1 and 2,147,483,647")
             sys.exit("loopback_id_out_of_bounds")
     except ValueError:  # for non-ints
-        print("Loopback_id should be an int between 1 and 2,147,483,647")
+        # print("Loopback_id should be an int between 1 and 2,147,483,647")
         sys.exit("loopback_id_not_int")
 
     # Validate IP address and mask
@@ -137,16 +138,16 @@ if __name__ == "__main__":
     try:
         net_connect = ConnectHandler(**gns3)
     except(AuthenticationException):
-        print("Incorrect username or password")
+        # print("Incorrect username or password")
         sys.exit("ssh_auth_fail")
     except(SSHException):
-        print("Connection failure")
+        # print("Connection failure")
         sys.exit("ssh_connection_fail")
     except(NetmikoTimeoutException):
-        print("Timeout when connecting")
+        # print("Timeout when connecting")
         sys.exit("ssh_timeout")
     except Exception as unknown_error:
-        print("Unknown error encountered during connection: " + str(unknown_error))
+        # print("Unknown error encountered during connection: " + str(unknown_error))
         sys.exit("ssh_unknown_error")
 
     # Create loopback
